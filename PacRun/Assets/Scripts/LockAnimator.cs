@@ -20,11 +20,20 @@ public class LockAnimator : MonoBehaviour
     
     private void Up()
     {
-        LeanTween.moveLocalY(this.gameObject, 0.1f, animTime).setOnComplete(() => Down());
+        LeanTween.moveY(this.gameObject, 0.1f, animTime).setOnComplete(() => Down());
     }
 
     private void Down()
     {
-        LeanTween.moveLocalY(this.gameObject, -0.1f, animTime).setOnComplete(() => Up());
+        LeanTween.moveY(this.gameObject, -0.1f, animTime).setOnComplete(() => Up());
+    }
+
+    [ContextMenu("Disappear")]
+    public void Disappear()
+    {
+        LeanTween.scale(this.gameObject, Vector3.zero, animTime).setOnComplete(() => 
+        {
+            this.gameObject.SetActive(false);
+        });
     }
 }
