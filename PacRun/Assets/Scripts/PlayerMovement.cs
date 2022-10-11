@@ -2,21 +2,33 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private CharacterController playerController;
+    public GameObject enterNameCanvas;
     private PlayerInput playerInput;
     private InputAction moveAction;
 
     private Vector2 currentInputVector, smoothInputVelocity;
 
-    private float smoothInputSpeed = 0.2f;
+    private float smoothInputSpeed = 0.1f;
 
     private float fixedMoveSpeed = 4f;
 
-    private bool isTouchingAWall = false;
+    public float timerTime = 0f;
 
+    private bool isTouchingAWall = false;
+    private bool controlsEnabled = false;
+
+    private bool timerRunning = false;
+
+    private int ballsCollected = 0;
+    private int ballTarget = 5;
+    public int levelNo = 0;
+
+    [SerializeField] private TextMeshProUGUI ballsText, timeText;
 
     // Start is called before the first frame update
     void Start()
@@ -33,17 +45,32 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        UpdateTimer();
+    }
+
+    void UpdateTimer()
+    {
+        if (!timerRunning)
+            return;
+        timerTime += Time.deltaTime;
+        timeText.text = $"{timerTime:N2}s";
     }
 
     void FixedUpdate()
     {
+        HandleInput();
+    }
+
+    void HandleInput()
+    {
+        if (!controlsEnabled)
+            return;
         Vector2 input = moveAction.ReadValue<Vector2>();
         currentInputVector = Vector2.SmoothDamp(currentInputVector, input, ref smoothInputVelocity, smoothInputSpeed);
         Vector3 move = new Vector3(currentInputVector.x, -1f, currentInputVector.y);
         WallCheck();
         float moveSpeed = isTouchingAWall ? fixedMoveSpeed / 4 : fixedMoveSpeed;
-        Debug.Log($"Move Speed is {moveSpeed}");
+        //Debug.Log($"Move Speed is {moveSpeed}");
         playerController.Move(move * Time.fixedDeltaTime * moveSpeed);
     }
 
@@ -58,6 +85,77 @@ public class PlayerMovement : MonoBehaviour
                 break;
             }
         }
+    }
+
+    public void TimerRunning(bool shouldBeRunning)
+    {
+        timerRunning = shouldBeRunning;
+    }
+
+    public void SetSelectedLevel(int levelNo)
+    {
+        this.levelNo = levelNo;
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        switch (other.gameObject.tag)
+        {
+            case "Ball":
+                Destroy(other.gameObject);
+                BallCollected();
+                break;
+            
+            case "Goal":
+                TimerRunning(false);
+                DisableControls();
+                StartCoroutine(GameOver());
+                break;
+            
+            default:
+                break;
+        }
+    }
+
+    void BallCollected()
+    {
+        ballsCollected++;
+        ballsText.text = $"{ballsCollected:D1}/{ballTarget}";
+        if (ballsCollected >= ballTarget)
+        {
+            GoalAchieved();
+            return;
+        }
+        BallManager.instance.SpawnBall();
+    }
+
+    void GoalAchieved()
+    {
+        LockAnimator.instance.Disappear();
+    }
+
+    public void DisableControls()
+    {
+        controlsEnabled = false;
+    }
+
+    public void EnableControls()
+    {
+        controlsEnabled = true;
+    }
+
+    IEnumerator GameOver()
+    {
+        yield return new WaitForSeconds(1f);
+
+        enterNameCanvas.SetActive(true);
+    }
+
+    public void Reset()
+    {
+        ballsCollected = 0;
+        levelNo = 0;
+        timerTime = 0f;
     }
 
 

@@ -6,10 +6,20 @@ public class LockAnimator : MonoBehaviour
 {
     private float animTime = 0.8f;
 
+    public static LockAnimator instance;
+
     // Start is called before the first frame update
     void Start()
     {
         Up();
+    }
+
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
     }
 
     // Update is called once per frame
