@@ -71,7 +71,14 @@ public class PlayerMovement : MonoBehaviour
         WallCheck();
         float moveSpeed = isTouchingAWall ? fixedMoveSpeed / 4 : fixedMoveSpeed;
         //Debug.Log($"Move Speed is {moveSpeed}");
+        RotatePlayer(input);
         playerController.Move(move * Time.fixedDeltaTime * moveSpeed);
+    }
+
+    void RotatePlayer(Vector2 direction)
+    {
+        float angle = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
+        LeanTween.rotateLocal(this.gameObject, new Vector3(0,angle,0), 0.1f);
     }
 
     void WallCheck()
