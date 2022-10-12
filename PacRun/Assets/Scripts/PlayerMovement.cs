@@ -84,7 +84,7 @@ public class PlayerMovement : MonoBehaviour
     void WallCheck()
     {
         isTouchingAWall = false;
-        foreach (Collider other in Physics.OverlapCapsule(transform.position + new Vector3(0,0.4f,0), transform.position + new Vector3(0,-0.4f,0), 0.5f))
+        foreach (Collider other in Physics.OverlapCapsule(transform.position + new Vector3(0,0.4f,0), transform.position + new Vector3(0,-0.4f,0), 0.45f))
         {
             if (other.gameObject.CompareTag("Wall"))
             {
