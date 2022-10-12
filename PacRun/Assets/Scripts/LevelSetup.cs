@@ -7,11 +7,17 @@ using TMPro;
 public class LevelSetup : MonoBehaviour
 {
     [SerializeField] private GameObject playerObj, goalObj, wallParentObj, wallPrefab, menuCanvas, countdownCanvas, enterNameCanvas;
+
+    private List<GameObject> wallObjs = new List<GameObject>();
+
     [SerializeField] private TextMeshProUGUI countdownText;
 
     private string[] urlArr = 
     {
-        "https://api.npoint.io/90f405491ba458f129c5"
+        "https://api.npoint.io/90f405491ba458f129c5",
+        "https://api.npoint.io/c351c113039fd3e19820",
+        ////"https://api.npoint.io/e97033d5aa37f57085b3"
+        "https://api.npoint.io/14792a6c2883e6c97bb7"
     };
 
     // Start is called before the first frame update
@@ -31,7 +37,12 @@ public class LevelSetup : MonoBehaviour
         enterNameCanvas.SetActive(false);
         countdownCanvas.SetActive(false);
         menuCanvas.SetActive(true);
+        LockAnimator.instance.Reset();
         playerObj.GetComponent<PlayerMovement>().Reset();
+        foreach (GameObject wall in wallObjs)
+        {
+            Destroy(wall);
+        }
     }
 
     public void SetupLevel(int levelIndex)
@@ -39,6 +50,7 @@ public class LevelSetup : MonoBehaviour
         // Start the loading animation
         playerObj.GetComponent<PlayerMovement>().DisableControls();
         playerObj.GetComponent<PlayerMovement>().SetSelectedLevel(levelIndex);
+        countdownText.text = "On Your Marks...";
         menuCanvas.SetActive(false);
         countdownCanvas.SetActive(true);
 
@@ -92,7 +104,8 @@ public class LevelSetup : MonoBehaviour
     {
         foreach (Vector3 pos in positions)
         {
-            Instantiate(wallPrefab, pos, Quaternion.identity, wallParentObj.transform);
+            GameObject go = Instantiate(wallPrefab, pos, Quaternion.identity, wallParentObj.transform);
+            wallObjs.Add(go);
         }
     }
 
