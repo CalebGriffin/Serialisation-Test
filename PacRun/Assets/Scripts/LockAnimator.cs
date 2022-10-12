@@ -46,4 +46,10 @@ public class LockAnimator : MonoBehaviour
             this.gameObject.SetActive(false);
         });
     }
+
+    public void Reset()
+    {
+        this.gameObject.transform.localScale = Vector3.one;
+        this.gameObject.SetActive(true);
+    }
 }
