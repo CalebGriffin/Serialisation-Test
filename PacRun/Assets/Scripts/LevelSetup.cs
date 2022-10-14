@@ -20,6 +20,11 @@ public class LevelSetup : MonoBehaviour
         "https://api.npoint.io/14792a6c2883e6c97bb7"
     };
 
+    private string[] ghostUrlArr = 
+    {
+
+    };
+
     // Start is called before the first frame update
     void Start()
     {
@@ -85,6 +90,26 @@ public class LevelSetup : MonoBehaviour
             BallManager.instance.GetWallPos();
             BallManager.instance.SpawnBall();
             StartCoroutine(Countdown());
+        }
+    }
+
+    IEnumerator GetGhostRequest(string url)
+    {
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+        {
+            yield return webRequest.SendWebRequest();
+
+            string[] pages = url.Split('/');
+            int page = pages.Length -1;
+
+            if (webRequest.result == UnityWebRequest.Result.ConnectionError)
+            {
+                Debug.Log("Web request error occurred");
+                yield break;
+            }
+
+            string textToParse = webRequest.downloadHandler.text;
+
         }
     }
 
