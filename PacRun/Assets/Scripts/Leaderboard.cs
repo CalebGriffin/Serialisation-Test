@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using TMPro;
+using System.Linq;
 
 public class Leaderboard : MonoBehaviour
 {
@@ -14,7 +15,8 @@ public class Leaderboard : MonoBehaviour
     public GameObject leaderboardObj, textParentObj, nameWarningObj;
 
     private float sideMargin = 300f, bottomMargin = 150f;
-
+    private char[] bannedChars = {'*', '/', '|', '+'};
+    
     public List<TextMeshProUGUI> textList;
 
     public static Leaderboard instance;
@@ -41,7 +43,7 @@ public class Leaderboard : MonoBehaviour
     {
         if (inputField.text == "")
             return;
-        if (inputField.text.Contains("*"))
+        if (inputField.text.ContainsAny(bannedChars))
         {
             GrowText();
             return;
@@ -54,7 +56,7 @@ public class Leaderboard : MonoBehaviour
 
     public void TextValidation()
     {
-        if (inputField.text.Contains("*"))
+        if (inputField.text.ContainsAny(bannedChars))
         {
             nameWarningObj.SetActive(true);
         }
@@ -64,6 +66,7 @@ public class Leaderboard : MonoBehaviour
             nameWarningObj.GetComponent<TextMeshProUGUI>().margin = new Vector4(300, 0, 300, 150);
         }
     }
+
 
     private void GrowText()
     {
@@ -123,5 +126,20 @@ public class Leaderboard : MonoBehaviour
             if (count >= textList.Count)
                 break;
         }
+    }
+}
+
+public static partial class Extensions
+{
+    public static bool ContainsAny(this string @this, params char[] values)
+    {
+        foreach (char value in values)
+        {
+            if (@this.Contains(value))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
