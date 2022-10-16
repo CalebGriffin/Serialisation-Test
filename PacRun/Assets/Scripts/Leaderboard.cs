@@ -15,6 +15,7 @@ public class Leaderboard : MonoBehaviour
     public GameObject leaderboardObj, textParentObj, nameWarningObj;
 
     private float sideMargin = 300f, bottomMargin = 150f;
+    private float currentHighestScore = Mathf.Infinity;
     private char[] bannedChars = {'*', '/', '|', '+'};
     
     public List<TextMeshProUGUI> textList;
@@ -39,7 +40,7 @@ public class Leaderboard : MonoBehaviour
         
     }
 
-    public void SubmitScore()
+    public void SubmitScore(Button button)
     {
         if (inputField.text == "")
             return;
@@ -48,9 +49,36 @@ public class Leaderboard : MonoBehaviour
             GrowText();
             return;
         }
+        button.interactable = false;
+        inputField.interactable = false;
         this.dl = dreamloLeaderBoard.GetSceneDreamloLeaderboard(playerScript.levelNo);
         Debug.Log(this.dl);
+
+        // Check if the current score is higher than the highest score
+        dl.GetScores();
+        StartCoroutine(CheckHighestScore());
+
         dl.AddScore(inputField.text, (int)(100000-(playerScript.timerTime * 100)));
+    }
+
+    IEnumerator CheckHighestScore()
+    {
+        yield return new WaitUntil(() => dl.highScores != "");
+        List<dreamloLeaderBoard.Score> scoreList = dl.ToListHighToLow();
+        Debug.Log(scoreList.Count);
+        if (scoreList.Count == 0)
+            currentHighestScore = 0;
+        else
+            currentHighestScore = scoreList[0].score;
+        float currentFastestTime = (100000 - currentHighestScore) / 100f;
+        Debug.Log("Current fastest time: " + currentFastestTime);
+        Debug.Log("Player time: " + playerScript.timerTime);
+        if (playerScript.timerTime < currentFastestTime)
+        {
+            Debug.Log("Submitting Ghost Data");
+            // Submit the ghost data
+            levelSetup.SubmitGhostData(playerScript.levelNo);
+        }
         levelSetup.BackToMenu();
     }
 

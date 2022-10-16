@@ -7,12 +7,24 @@ public class GhostController : MonoBehaviour
     public Vector2[] positions;
     public float[] rotations;
 
+    public static GhostController instance;
+    public PlayerMovement playerScript;
+
     private int frameNo = 0;
+    private int moveCount = 0;
 
     // Start is called before the first frame update
     void Start()
     {
         
+    }
+
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
     }
 
     // Update is called once per frame
@@ -21,14 +33,40 @@ public class GhostController : MonoBehaviour
         
     }
 
+    public void SetGhostData(Vector2[] positions, float[] rotations)
+    {
+        this.positions = positions;
+        this.rotations = rotations;
+    }
+
     void FixedUpdate()
     {
+        if (!playerScript.controlsEnabled)
+            return;
+
         frameNo++;
-        if (frameNo / 10 == 0)
+        if (frameNo / 5 == 0)
         {
             // Run ghost movement and rotation
+            MoveAndRotate();
             frameNo = 0;
         }
+    }
 
+    void MoveAndRotate()
+    {
+        if (moveCount >= positions.Length)
+        {
+            this.gameObject.SetActive(false);
+            return;
+        }
+
+        // Move ghost to position
+        Vector3 targetPosition = new Vector3(positions[moveCount].x, 0.3f, positions[moveCount].y);
+        LeanTween.moveLocal(this.gameObject, targetPosition, 0.2f);
+
+        // Rotate ghost to rotation
+        LeanTween.rotateY(this.gameObject, rotations[moveCount], 0.2f);
+        moveCount++;
     }
 }

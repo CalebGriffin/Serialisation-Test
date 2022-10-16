@@ -2,14 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using TMPro;
 
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private CharacterController playerController;
     public GameObject enterNameCanvas;
+    public Button submitButton;
+    public TMP_InputField inputField;
     private PlayerInput playerInput;
     private InputAction moveAction;
+
+    private List<Vector2> positions = new List<Vector2>();
+    private List<float> rotations = new List<float>();
 
     private Vector2 currentInputVector, smoothInputVelocity;
 
@@ -20,13 +26,14 @@ public class PlayerMovement : MonoBehaviour
     public float timerTime = 0f;
 
     private bool isTouchingAWall = false;
-    private bool controlsEnabled = false;
+    public bool controlsEnabled = false;
 
     private bool timerRunning = false;
 
     private int ballsCollected = 0;
     private int ballTarget = 5;
     public int levelNo = 0;
+    private int frameNo = 0;
 
     [SerializeField] private TextMeshProUGUI ballsText, timeText;
 
@@ -59,6 +66,16 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         HandleInput();
+
+        if (!controlsEnabled)
+            return;
+        frameNo++;
+        if (frameNo / 5 == 0)
+        {
+            SavePositionAndRotation();
+            frameNo = 0;
+        }
+
     }
 
     void HandleInput()
@@ -75,8 +92,26 @@ public class PlayerMovement : MonoBehaviour
         playerController.Move(move * Time.fixedDeltaTime * moveSpeed);
     }
 
+    void SavePositionAndRotation()
+    {
+        positions.Add(new Vector2(transform.position.x, transform.position.z));
+        rotations.Add(transform.rotation.eulerAngles.y);
+    }
+
+    public GhostData CreateGhostData()
+    {
+        GhostData ghostData = new GhostData
+        {
+            positions = positions.ToArray(),
+            rotations = rotations.ToArray()
+        };
+        return ghostData;
+    }
+
     void RotatePlayer(Vector2 direction)
     {
+        if (direction == Vector2.zero)
+            return;
         float angle = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
         LeanTween.rotateLocal(this.gameObject, new Vector3(0,angle,0), 0.1f);
     }
@@ -155,6 +190,8 @@ public class PlayerMovement : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
 
+        submitButton.interactable = true;
+        inputField.interactable = true;
         enterNameCanvas.SetActive(true);
     }
 
