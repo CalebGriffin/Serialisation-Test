@@ -20,6 +20,22 @@ public class LevelSetup : MonoBehaviour
     private bool ghostToggle = true;
     private bool gotGhostData = false;
 
+    private string emptyJson = "{\"positions\":[],\"rotations\":[]}";
+    // Create a json string with 10 random positions and rotations
+    private string randomJson = "{\"positions\":[[0.0,0.0],[0.0,0.0],[0.0,0.0],[0.0,0.0],[0.0,0.0],[0.0,0.0],[0.0,0.0],[0.0,0.0],[0.0,0.0],[0.0,0.0]],\"rotations\":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}";
+
+    GhostData fakeData = new GhostData
+    {
+        positions = new Vector2[] { new Vector2(1, 1), new Vector2(2, 2), new Vector2(3, 3) },
+        rotations = new float[] { 1, 2, 3 }
+    };
+
+    GhostData fakeDat2 = new GhostData
+    {
+        positions = new Vector2[] { new Vector2(4, 4), new Vector2(5, 5), new Vector2(6, 6) },
+        rotations = new float[] { 4, 5, 6 }
+    };
+
     private string[] urlArr = 
     {
         "https://api.npoint.io/90f405491ba458f129c5",
@@ -47,6 +63,12 @@ public class LevelSetup : MonoBehaviour
         
     }
 
+    [ContextMenu("Test Ghost Data")]
+    public void TestGhostUpload()
+    {
+        StartCoroutine(TestGhostData(ghostUrlArr[1]));
+    }
+
     public void BackToMenu()
     {
         enterNameCanvas.SetActive(false);
@@ -58,6 +80,7 @@ public class LevelSetup : MonoBehaviour
         menuCanvas.SetActive(true);
         LockAnimator.instance.Reset();
         playerObj.GetComponent<PlayerMovement>().Reset();
+        GhostController.instance.ResetGhostData();
         ghostObj.SetActive(true);
         foreach (GameObject wall in wallObjs)
         {
@@ -89,6 +112,7 @@ public class LevelSetup : MonoBehaviour
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
         {
+            webRequest.SetRequestHeader("Content-Type", "application/json");
             yield return webRequest.SendWebRequest();
 
             string[] pages = url.Split('/');
@@ -134,6 +158,7 @@ public class LevelSetup : MonoBehaviour
                 yield break;
             }
 
+            ////Debug.Log($"Test of the page is: {webRequest.downloadHandler.text}");
             string textToParse = webRequest.downloadHandler.text;
             GhostData ghostData = JsonUtility.FromJson<GhostData>(textToParse);
 
@@ -141,6 +166,28 @@ public class LevelSetup : MonoBehaviour
 
             gotGhostData = true;
         }
+    }
+
+    //! DELETE THIS !//
+    IEnumerator TestGhostData(string url)
+    {
+        string json = JsonUtility.ToJson(fakeDat2);
+        Debug.Log(json);
+        UnityWebRequest webRequest = UnityWebRequest.Post(url, json);
+        webRequest.SetRequestHeader("Content-Type", "application/json");
+        var jsonBytes = Encoding.UTF8.GetBytes(json);
+        webRequest.uploadHandler = new UploadHandlerRaw(jsonBytes);
+        webRequest.downloadHandler = new DownloadHandlerBuffer();
+        yield return webRequest.SendWebRequest();
+
+        if (webRequest.result == UnityWebRequest.Result.ConnectionError)
+        {
+            Debug.Log("Web request error occurred");
+            yield break;
+        }
+        Debug.Log(webRequest.downloadHandler.text);
+
+        Debug.Log("Ghost data submitted");
     }
 
     public void SubmitGhostData(int levelIndex)

@@ -33,6 +33,14 @@ public class GhostController : MonoBehaviour
         
     }
 
+    public void ResetGhostData()
+    {
+        positions = new Vector2[0];
+        rotations = new float[0];
+        frameNo = 0;
+        moveCount = 0;
+    }
+
     public void SetGhostData(Vector2[] positions, float[] rotations)
     {
         this.positions = positions;
@@ -60,6 +68,8 @@ public class GhostController : MonoBehaviour
             this.gameObject.SetActive(false);
             return;
         }
+
+        LeanTween.cancel(this.gameObject);
 
         // Move ghost to position
         Vector3 targetPosition = new Vector3(positions[moveCount].x, 0.3f, positions[moveCount].y);

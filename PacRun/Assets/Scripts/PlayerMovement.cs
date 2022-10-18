@@ -223,6 +223,8 @@ public class PlayerMovement : MonoBehaviour
         ballsCollected = 0;
         levelNo = 0;
         timerTime = 0f;
+        positions.Clear();
+        rotations.Clear();
     }
 
 
