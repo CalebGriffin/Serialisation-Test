@@ -25,6 +25,12 @@ public class PlayerMovement : MonoBehaviour
 
     public float timerTime = 0f;
 
+    private float fixedTimeBetweenFootsteps = 0.15f;
+    private int footstepFrameNo = 0;
+
+    public GameObject[] footstepPrefabs;
+    private bool leftFoot = true;
+
     private bool isTouchingAWall = false;
     public bool controlsEnabled = false;
 
@@ -83,6 +89,16 @@ public class PlayerMovement : MonoBehaviour
         if (!controlsEnabled)
             return;
         Vector2 input = moveAction.ReadValue<Vector2>();
+        if (input.magnitude > 0)
+        {
+            footstepFrameNo++;
+            float timeBetweenFootsteps = isTouchingAWall ? fixedTimeBetweenFootsteps * 4 : fixedTimeBetweenFootsteps;
+            if (footstepFrameNo > 50 * timeBetweenFootsteps)
+            {
+                SpawnFootprint();
+                footstepFrameNo = 0;
+            }
+        }
         currentInputVector = Vector2.SmoothDamp(currentInputVector, input, ref smoothInputVelocity, smoothInputSpeed);
         Vector3 move = new Vector3(currentInputVector.x, -1f, currentInputVector.y);
         WallCheck();
@@ -127,6 +143,13 @@ public class PlayerMovement : MonoBehaviour
                 break;
             }
         }
+    }
+
+    void SpawnFootprint()
+    {
+        GameObject prefab = leftFoot ? footstepPrefabs[0] : footstepPrefabs[1];
+        GameObject.Instantiate(prefab, new Vector3(transform.position.x, -0.49f, transform.position.z), Quaternion.Euler(90, transform.rotation.eulerAngles.y - 180f, 180));
+        leftFoot = !leftFoot;
     }
 
     public void TimerRunning(bool shouldBeRunning)
