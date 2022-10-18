@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -72,6 +73,7 @@ public class LevelSetup : MonoBehaviour
         playerObj.GetComponent<PlayerMovement>().DisableControls();
         playerObj.GetComponent<PlayerMovement>().SetSelectedLevel(levelIndex);
         countdownText.text = "On Your Marks...";
+        loadingSlider.value = 0f;
         menuCanvas.SetActive(false);
         countdownCanvas.SetActive(true);
 
@@ -143,23 +145,7 @@ public class LevelSetup : MonoBehaviour
 
     public void SubmitGhostData(int levelIndex)
     {
-        StartCoroutine(ClearGhostData(ghostUrlArr[levelIndex-1]));
-    }
-
-    IEnumerator ClearGhostData(string url)
-    {
-        string json = "{\"positions\":[],\"rotations\":[]}";
-        UnityWebRequest webRequest = UnityWebRequest.Put(url, json);
-        webRequest.SetRequestHeader("Content-Type", "application/json");
-        yield return webRequest.SendWebRequest();
-
-        if (webRequest.result == UnityWebRequest.Result.ConnectionError)
-        {
-            Debug.Log("Web request error occurred");
-            yield break;
-        }
-
-        StartCoroutine(SetGhostRequest(url));
+        StartCoroutine(SetGhostRequest(ghostUrlArr[levelIndex-1]));
     }
 
     IEnumerator SetGhostRequest(string url)
@@ -167,8 +153,11 @@ public class LevelSetup : MonoBehaviour
         GhostData newGhostData = playerObj.GetComponent<PlayerMovement>().CreateGhostData();
         string json = JsonUtility.ToJson(newGhostData);
         Debug.Log(json);
-        UnityWebRequest webRequest = UnityWebRequest.Put(url, json);
+        UnityWebRequest webRequest = UnityWebRequest.Post(url, json);
         webRequest.SetRequestHeader("Content-Type", "application/json");
+        var jsonBytes = Encoding.UTF8.GetBytes(json);
+        webRequest.uploadHandler = new UploadHandlerRaw(jsonBytes);
+        webRequest.downloadHandler = new DownloadHandlerBuffer();
         yield return webRequest.SendWebRequest();
 
         if (webRequest.result == UnityWebRequest.Result.ConnectionError)

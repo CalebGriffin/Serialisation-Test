@@ -63,10 +63,10 @@ public class GhostController : MonoBehaviour
 
         // Move ghost to position
         Vector3 targetPosition = new Vector3(positions[moveCount].x, 0.3f, positions[moveCount].y);
-        LeanTween.moveLocal(this.gameObject, targetPosition, 0.2f);
+        LeanTween.moveLocal(this.gameObject, targetPosition, 0.1f);
 
         // Rotate ghost to rotation
-        LeanTween.rotateY(this.gameObject, rotations[moveCount], 0.2f);
+        LeanTween.rotateY(this.gameObject, rotations[moveCount], 0.1f);
         moveCount++;
     }
 }
