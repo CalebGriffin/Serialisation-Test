@@ -15,6 +15,7 @@ public class LevelSetup : MonoBehaviour
     public Button[] buttons;
 
     [SerializeField] private TextMeshProUGUI countdownText;
+    public TextMeshProUGUI ballsText;
     public Slider loadingSlider;
 
     private bool ghostToggle = true;
@@ -78,6 +79,7 @@ public class LevelSetup : MonoBehaviour
             button.interactable = true;
         }
         menuCanvas.SetActive(true);
+        ballsText.text = "0/5";
         LockAnimator.instance.Reset();
         playerObj.GetComponent<PlayerMovement>().Reset();
         GhostController.instance.ResetGhostData();

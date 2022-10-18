@@ -10519,6 +10519,7 @@ MonoBehaviour:
   - {fileID: 261517506}
   - {fileID: 851797387}
   countdownText: {fileID: 899155766}
+  ballsText: {fileID: 1776189857}
   loadingSlider: {fileID: 2046769772}
 --- !u!1 &2037219717
 GameObject:
