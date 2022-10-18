@@ -12,7 +12,7 @@ public class Leaderboard : MonoBehaviour
     public PlayerMovement playerScript;
     public LevelSetup levelSetup;
     public TMP_InputField inputField;
-    public GameObject leaderboardObj, textParentObj, nameWarningObj;
+    public GameObject leaderboardObj, textParentObj, loadingIconObj, nameWarningObj;
 
     private float sideMargin = 300f, bottomMargin = 150f;
     private float currentHighestScore = Mathf.Infinity;
@@ -109,6 +109,7 @@ public class Leaderboard : MonoBehaviour
     public void ShowLeaderboard(int levelNo)
     {
         textParentObj.SetActive(false);
+        loadingIconObj.SetActive(true);
         leaderboardObj.SetActive(true);
         this.dl = dreamloLeaderBoard.GetSceneDreamloLeaderboard(levelNo);
         dl.GetScores();
@@ -136,6 +137,8 @@ public class Leaderboard : MonoBehaviour
                 break;
         }
 
+        yield return new WaitForSeconds(0.5f);
+        loadingIconObj.SetActive(false);
         textParentObj.SetActive(true);
     }
 

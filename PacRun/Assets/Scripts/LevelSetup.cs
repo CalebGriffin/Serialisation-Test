@@ -14,6 +14,7 @@ public class LevelSetup : MonoBehaviour
     public Button[] buttons;
 
     [SerializeField] private TextMeshProUGUI countdownText;
+    public Slider loadingSlider;
 
     private bool ghostToggle = true;
     private bool gotGhostData = false;
@@ -209,6 +210,10 @@ public class LevelSetup : MonoBehaviour
 
     IEnumerator Countdown()
     {
+        LeanTween.value(loadingSlider.gameObject, 0, 100, 3f).setOnUpdate((float val) =>
+        {
+            loadingSlider.value = val;
+        });
         yield return new WaitForSeconds(1f);
         countdownText.text = "Get Set...";
         yield return new WaitForSeconds(1f);
